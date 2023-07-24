@@ -1,5 +1,6 @@
 package com.shoppingmart.shoppingverse.service.serviceimpl;
 
+import com.shoppingmart.shoppingverse.config.Mailing;
 import com.shoppingmart.shoppingverse.dto.request.CheckoutCartRequestDto;
 import com.shoppingmart.shoppingverse.dto.request.ItemRequestDto;
 import com.shoppingmart.shoppingverse.dto.response.CartResponseDto;
@@ -39,6 +40,8 @@ public class CartServiceImpl implements CartService {
     private OrderedRepository orderedRepository;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private Mailing mailing;
     @Override
     public CartResponseDto addItemToCart(ItemRequestDto itemRequestDto, Item item) {
         Optional<Customer> optionalCustomer = customerRepository.findByMobNo(itemRequestDto.getCustomerMobile());
@@ -91,6 +94,9 @@ public class CartServiceImpl implements CartService {
         resetCart(cart);
 
         Ordered savedOrder = orderedRepository.save(order);
+
+        //send mail
+        mailing.sendMail(savedOrder);
 
         // prepare response dto
         return OrderTransformer.OrderToOrderResponseDto(savedOrder);

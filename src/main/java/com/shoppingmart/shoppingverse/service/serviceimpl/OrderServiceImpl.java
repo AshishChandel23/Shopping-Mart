@@ -1,6 +1,7 @@
 package com.shoppingmart.shoppingverse.service.serviceimpl;
 
 import com.shoppingmart.shoppingverse.Enum.ProductStatus;
+import com.shoppingmart.shoppingverse.config.Mailing;
 import com.shoppingmart.shoppingverse.dto.request.OrderRequestDto;
 import com.shoppingmart.shoppingverse.dto.response.OrderResponseDto;
 import com.shoppingmart.shoppingverse.exception.CustomerNotFoundException;
@@ -39,6 +40,9 @@ public class OrderServiceImpl implements OrderService {
     private OrderedRepository orderedRepository;
     @Autowired
     private CardService cardService;
+    @Autowired
+    private Mailing mailing;
+
     @Override
     public OrderResponseDto placeOrder(OrderRequestDto orderRequestDto) {
         Optional<Customer> optionalCustomer = customerRepository.findByMobNo(orderRequestDto.getCustomerMobile());
@@ -84,6 +88,8 @@ public class OrderServiceImpl implements OrderService {
         product.getItems().add(savedOrder.getItems().get(0));
         customer.getOrders().add(savedOrder);
 
+        //send mail
+        mailing.sendMail(savedOrder);
 
         // prepare response Dto
         return OrderTransformer.OrderToOrderResponseDto(savedOrder);
